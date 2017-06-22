@@ -36,6 +36,7 @@
     "languages": [
       "en",
       "fr"
-    ]
+    ],
+    "herokuAppName": "secret-escarpment-67006"
   }
 }
