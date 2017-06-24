@@ -4,7 +4,10 @@ import com.codahale.metrics.annotation.Timed;
 import org.jhipster.health.domain.Points;
 
 import org.jhipster.health.repository.PointsRepository;
+import org.jhipster.health.repository.UserRepository;
 import org.jhipster.health.repository.search.PointsSearchRepository;
+import org.jhipster.health.security.AuthoritiesConstants;
+import org.jhipster.health.security.SecurityUtils;
 import org.jhipster.health.web.rest.util.HeaderUtil;
 import org.jhipster.health.web.rest.util.PaginationUtil;
 import io.swagger.annotations.ApiParam;
@@ -44,9 +47,12 @@ public class PointsResource {
 
     private final PointsSearchRepository pointsSearchRepository;
 
-    public PointsResource(PointsRepository pointsRepository, PointsSearchRepository pointsSearchRepository) {
+    private final UserRepository userRepository;
+
+    public PointsResource(PointsRepository pointsRepository, PointsSearchRepository pointsSearchRepository, UserRepository userRepository) {
         this.pointsRepository = pointsRepository;
         this.pointsSearchRepository = pointsSearchRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -63,6 +69,11 @@ public class PointsResource {
         if (points.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert(ENTITY_NAME, "idexists", "A new points cannot already have an ID")).body(null);
         }
+        if (!SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN)) {
+            log.debug("No user passed in, using current user: {}", SecurityUtils.getCurrentUserLogin());
+            points.setUser(userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin()).get());
+        }
+
         Points result = pointsRepository.save(points);
         pointsSearchRepository.save(result);
         return ResponseEntity.created(new URI("/api/points/" + result.getId()))
@@ -103,7 +114,12 @@ public class PointsResource {
     @Timed
     public ResponseEntity<List<Points>> getAllPoints(@ApiParam Pageable pageable) {
         log.debug("REST request to get a page of Points");
-        Page<Points> page = pointsRepository.findAll(pageable);
+        Page<Points> page;
+        if (SecurityUtils.isCurrentUserInRole(AuthoritiesConstants.ADMIN)) {
+            page = pointsRepository.findAllByOrderByTimestampDesc(pageable);
+        } else {
+            page = pointsRepository.findByUserIsCurrentUser(pageable);
+        }
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/api/points");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }

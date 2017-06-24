@@ -6,6 +6,7 @@ import org.jhipster.health.domain.Points;
 import org.jhipster.health.domain.User;
 import org.jhipster.health.repository.PointsRepository;
 import org.jhipster.health.repository.search.PointsSearchRepository;
+import org.jhipster.health.security.AuthoritiesConstants;
 import org.jhipster.health.web.rest.errors.ExceptionTranslator;
 
 import org.junit.Before;
@@ -32,6 +33,14 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
+
+import org.jhipster.health.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.WebApplicationContext;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+
 /**
  * Test class for the PointsResource REST controller.
  *
@@ -57,9 +66,6 @@ public class PointsResourceIntTest {
     private static final String UPDATED_NOTES = "BBBBBBBBBB";
 
     @Autowired
-    private PointsRepository pointsRepository;
-
-    @Autowired
     private PointsSearchRepository pointsSearchRepository;
 
     @Autowired
@@ -74,6 +80,15 @@ public class PointsResourceIntTest {
     @Autowired
     private EntityManager em;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private PointsRepository pointsRepository;
+
+    @Autowired
+    private WebApplicationContext context;
+
     private MockMvc restPointsMockMvc;
 
     private Points points;
@@ -81,7 +96,7 @@ public class PointsResourceIntTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        PointsResource pointsResource = new PointsResource(pointsRepository, pointsSearchRepository);
+        PointsResource pointsResource = new PointsResource(pointsRepository, pointsSearchRepository, userRepository);
         this.restPointsMockMvc = MockMvcBuilders.standaloneSetup(pointsResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -120,8 +135,11 @@ public class PointsResourceIntTest {
     public void createPoints() throws Exception {
         int databaseSizeBeforeCreate = pointsRepository.findAll().size();
 
-        // Create the Points
+        restPointsMockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+
+        // Create security aware mockMVC
         restPointsMockMvc.perform(post("/api/points")
+            .with(user("user"))
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(points)))
             .andExpect(status().isCreated());
@@ -184,15 +202,17 @@ public class PointsResourceIntTest {
         // Initialize the database
         pointsRepository.saveAndFlush(points);
 
-        // Get all the pointsList
-        restPointsMockMvc.perform(get("/api/points?sort=id,desc"))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(points.getId().intValue())))
-            .andExpect(jsonPath("$.[*].timestamp").value(hasItem(DEFAULT_TIMESTAMP.toString())))
-            .andExpect(jsonPath("$.[*].exercise").value(hasItem(DEFAULT_EXERCISE)))
-            .andExpect(jsonPath("$.[*].meals").value(hasItem(DEFAULT_MEALS)))
-            .andExpect(jsonPath("$.[*].alcohol").value(hasItem(DEFAULT_ALCOHOL)))
+        restPointsMockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
+
+        // Create security aware mockMVC
+        restPointsMockMvc.perform(get("/api/points?sort=id,desc").with(user("admin").roles("ADMIN")))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
+                .andExpect(jsonPath("$.[*].id").value(hasItem(points.getId().intValue())))
+                .andExpect(jsonPath("$.[*].timestamp").value(hasItem(DEFAULT_TIMESTAMP.toString())))
+                .andExpect(jsonPath("$.[*].exercise").value(hasItem(DEFAULT_EXERCISE)))
+                .andExpect(jsonPath("$.[*].meals").value(hasItem(DEFAULT_MEALS)))
+                .andExpect(jsonPath("$.[*].alcohol").value(hasItem(DEFAULT_ALCOHOL)))
             .andExpect(jsonPath("$.[*].notes").value(hasItem(DEFAULT_NOTES.toString())));
     }
 
@@ -263,11 +283,13 @@ public class PointsResourceIntTest {
     @Transactional
     public void updateNonExistingPoints() throws Exception {
         int databaseSizeBeforeUpdate = pointsRepository.findAll().size();
+        restPointsMockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity()).build();
 
         // Create the Points
 
         // If the entity doesn't have an ID, it will be created instead of just being updated
         restPointsMockMvc.perform(put("/api/points")
+            .with(user("user"))
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(points)))
             .andExpect(status().isCreated());

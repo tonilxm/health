@@ -20,6 +20,9 @@
             "exercise": "Exercise",
             "meals": "Meals",
             "alcohol": "Alcohol",
+            "edit_exercise" : "Did you exercise?",
+            "edit_meals" : "Did you eat well?",
+            "edit_alcohol" : "Did you drink responsibly?",
             "notes": "Notes",
             "user": "User"
         }
