@@ -306,4 +306,6 @@ public class BloodPressureResourceIntTest {
         bloodPressure1.setId(null);
         assertThat(bloodPressure1).isNotEqualTo(bloodPressure2);
     }
+
+
 }

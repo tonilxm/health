@@ -1,10 +1,10 @@
 <div>
     <div class="row">
         <div class="col-sm-7">
-            <h2 data-translate="21PointsApp.points.home.title">Points</h2>
-        </div>
+    <h2 data-translate="21PointsApp.points.home.title">Points</h2>
+            </div>
         <div class="col-sm-5 text-right p-n">
-            <form name="searchForm" class="form-inline">
+                <form name="searchForm" class="form-inline">
                 <div class="form-group m-n" >
                     <input type="search" class="form-control" ng-model="vm.searchQuery" id="searchQuery" placeholder="{{ '21PointsApp.points.home.search' | translate }}">
                 </div>
@@ -12,21 +12,21 @@
                     <span class="glyphicon glyphicon-trash"></span>
                 </button>
                 <button class="btn btn-info btn-sm btn-raised" ng-click="vm.search(vm.searchQuery)" uib-tooltip="{{ '21PointsApp.points.home.search' | translate }}">
-                    <span class="glyphicon glyphicon-search"></span>
-                </button>
+                                <span class="glyphicon glyphicon-search"></span>
+                            </button>
                 <button class="btn btn-primary btn-sm btn-raised" ui-sref="points.new" uib-tooltip="{{'21PointsApp.points.home.createLabel' | translate}}">
                     <span class="glyphicon glyphicon-plus"></span>
-                </button>
-            </form>
+                            </button>
+                </form>
+            </div>
         </div>
-    </div>
     <div class="row>">
         <jhi-alert></jhi-alert>
     </div>
     <div class="row">
-        <div class="table-responsive">
-            <table class="jh-table table table-striped">
-                <thead>
+    <div class="table-responsive">
+        <table class="jh-table table table-striped">
+            <thead>
                 <tr jh-sort="vm.predicate" ascending="vm.reverse" callback="vm.reset()">
                     <th jh-sort-by="id"><span data-translate="global.field.id">ID</span> <span class="glyphicon glyphicon-sort"></span></th>
                     <th jh-sort-by="timestamp"><span data-translate="21PointsApp.points.timestamp">Timestamp</span> <span class="glyphicon glyphicon-sort"></span></th>
@@ -37,11 +37,11 @@
                     <th jh-sort-by="user.login" has-authority="ROLE_ADMIN"><span data-translate="21PointsApp.points.user">User</span> <span class="glyphicon glyphicon-sort"></span></th>
                     <th></th>
                 </tr>
-                </thead>
-                <tbody infinite-scroll="vm.loadPage(vm.page + 1)" infinite-scroll-disabled="vm.page >= vm.links['last']">
+            </thead>
+            <tbody infinite-scroll="vm.loadPage(vm.page + 1)" infinite-scroll-disabled="vm.page >= vm.links['last']">
                 <tr ng-repeat="points in vm.points track by points.id">
                     <td><a ui-sref="points-detail({id:points.id})">{{points.id}}</a></td>
-                    <td>{{points.timestamp | date:'mediumDate'}}</td>
+                        <td>{{points.timestamp | date:'mediumDate'}}</td>
                     <td class="text-center">
                         <i class="glyphicon" ng-class="{'glyphicon-ok text-success': points.exercise, 'glyphicon-remove text-danger': !points.exercise}"></i></td>
                     <td class="text-center"><i class="glyphicon" ng-class="{'glyphicon-ok text-success': points.meals,'glyphicon-remove text-danger': !points.meals}"></i></td>
@@ -73,9 +73,9 @@
                         </div>
                     </td>
                 </tr>
-                </tbody>
-            </table>
-        </div>
+            </tbody>
+        </table>
     </div>
+</div>
 </div>
 

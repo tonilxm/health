@@ -4,38 +4,64 @@
             <span class="hipster img-responsive img-rounded"></span>
         </div>
         <div class="col-md-8">
-            <h1 data-translate="home.title">Welcome, Java Hipster!</h1>
-            <p class="lead" data-translate="home.subtitle">This is your homepage</p>
-            <a ui-sref="points.add" class="btn btn-primary btn-raised">Add Points</a>
-            <div ng-switch="vm.isAuthenticated()">
-                <div class="alert alert-success" ng-switch-when="true" data-translate="home.logged.message" translate-values="{username: '{{vm.account.login}}'}">
-                    You are logged in as user "{{vm.account.login}}".
-                </div>
-
-                <div class="alert alert-warning" ng-switch-when="false" data-translate="global.messages.info.authenticated" translate-compile>
-                    If you want to <a class="alert-link" href="" ng-click="vm.login()">sign in</a>, you can try the default accounts:<br/>- Administrator (login="admin" and password="admin") <br/>- User (login="user" and password="user").
-                </div>
-
-                <div class="alert alert-warning" ng-switch-when="false" data-translate="global.messages.info.register" translate-compile>
-                    You don't have an account yet? <a class="alert-link" ui-sref="register">Register a new account</a>
+            <div class="row">
+                <div class="col-md-12">
+                    <p class="lead" data-translate="home.subtitle">21-Points is here to track your health and improve your life.</p>
                 </div>
             </div>
+            <div class="row">
+                <div class="col-md-4 text-right">
+                    <label>Points for the week of {{ vm.today | date:'yyyy-MM-dd' }}</label>
+                </div>
+                <div class="col-md-2">
+                    <a ui-sref="points.add" class="btn btn-primary btn-raised">Add Points</a>
+                </div>
+                <div class="col-md-2">
+                    <a ui-sref="preferences.setting" class="btn btn-primary btn-raised">Setting</a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div ng-show="vm.pointsThisWeek.points">
+                        <div class="progress-bar progress-bar-striped" role="progressbar"
+                             ng-class="{'progress-bar-success': vm.pointsThisWeek.points >= vm.preferences.weeklyGoal,
+                                        'progress-bar-danger': vm.pointsThisWeek.points < 10,
+                                        'progress-bar-warning': vm.pointsThisWeek.points > 10 && vm.pointsThisWeek.points < vm.preferences.weeklyGoal}"
+                             aria-valuenow="{{vm.pointsThisWeek.points}}"
+                             aria-valuemin="0" aria-valuemax="21" style="width: {{vm.pointsPercentage}}%">
+                            <span ng-show="vm.pointsThisWeek.points">
+                                {{vm.pointsThisWeek.points}} / Goal: {{vm.preferences.weeklyGoal}}
+                            </span>
+                            <span class="sr-only">{{vm.pointsPercentage}} points this week</span>
+                        </div>
+                    </div>
+                <div>
+            </div>
+            <div class="row">
+                </div>
+                    <alert type="info" ng-hide="vm.pointsThisWeek.points">
+                        No points yet this week, better get moving!
+                    </alert>
+                </div>
+            </div>
+            <br/>
+            <div class="row">
+                <div class="col-md-12">
+                    <div ng-switch="vm.isAuthenticated()">
+                        <div class="alert alert-success" ng-switch-when="true" data-translate="home.logged.message" translate-values="{username: '{{vm.account.login}}'}">
+                            You are logged in as user "{{vm.account.login}}".
+                        </div>
 
-            <p data-translate="home.question">
-                If you have any question on JHipster:
-            </p>
+                        <div class="alert alert-warning" ng-switch-when="false" data-translate="global.messages.info.authenticated" translate-compile>
+                            If you want to <a class="alert-link" href="" ng-click="vm.login()">sign in</a>, you can try the default accounts:<br/>- Administrator (login="admin" and password="admin") <br/>- User (login="user" and password="user").
+                        </div>
 
-            <ul>
-                <li><a href="http://jhipster.github.io/" target="_blank" rel="noopener" data-translate="home.link.homepage">JHipster homepage</a></li>
-                <li><a href="http://stackoverflow.com/tags/jhipster/info" target="_blank" rel="noopener" data-translate="home.link.stackoverflow">JHipster on Stack Overflow</a></li>
-                <li><a href="https://github.com/jhipster/generator-jhipster/issues?state=open" target="_blank" rel="noopener" data-translate="home.link.bugtracker">JHipster bug tracker</a></li>
-                <li><a href="https://gitter.im/jhipster/generator-jhipster" target="_blank" rel="noopener" data-translate="home.link.chat">JHipster public chat room</a></li>
-                <li><a href="https://twitter.com/java_hipster" target="_blank" rel="noopener" data-translate="home.link.follow">follow @java_hipster on Twitter</a></li>
-            </ul>
-
-            <p>
-             <span data-translate="home.like">If you like JHipster, don't forget to give us a star on </span>&nbsp;<a href="https://github.com/jhipster/generator-jhipster" target="_blank" rel="noopener" data-translate="home.github">Github</a>!
-            </p>
+                        <div class="alert alert-warning" ng-switch-when="false" data-translate="global.messages.info.register" translate-compile>
+                            You don't have an account yet? <a class="alert-link" ui-sref="register">Register a new account</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
