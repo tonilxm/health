@@ -1,14 +1,18 @@
 package org.jhipster.health.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import org.jhipster.health.domain.BloodPressure;
 import org.jhipster.health.domain.Weight;
 
 import org.jhipster.health.repository.WeightRepository;
 import org.jhipster.health.repository.search.WeightSearchRepository;
+import org.jhipster.health.security.SecurityUtils;
 import org.jhipster.health.web.rest.util.HeaderUtil;
 import org.jhipster.health.web.rest.util.PaginationUtil;
 import io.swagger.annotations.ApiParam;
 import io.github.jhipster.web.util.ResponseUtil;
+import org.jhipster.health.web.rest.vm.BloodPressureByPeriod;
+import org.jhipster.health.web.rest.vm.WeightByPeriod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -22,6 +26,7 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -154,4 +159,15 @@ public class WeightResource {
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
 
+    @RequestMapping(value = "/weight-by-days/{days}")
+    @Timed
+    public ResponseEntity<WeightByPeriod> getByDays(@PathVariable int days) {
+        LocalDate rightNow = LocalDate.now();
+        LocalDate daysAgo = rightNow.minusDays(days);
+
+        List<Weight> readings = weightRepository
+            .findAllByTimestampBetweenAndUserLoginOrderByTimestampDesc(daysAgo, rightNow, SecurityUtils.getCurrentUserLogin());
+        WeightByPeriod response = new WeightByPeriod("Last " + days + " Days", readings);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }

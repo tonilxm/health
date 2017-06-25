@@ -2,7 +2,10 @@ package org.jhipster.health.web.rest;
 
 import org.jhipster.health.Application;
 
+import org.jhipster.health.domain.BloodPressure;
+import org.jhipster.health.domain.User;
 import org.jhipster.health.domain.Weight;
+import org.jhipster.health.repository.UserRepository;
 import org.jhipster.health.repository.WeightRepository;
 import org.jhipster.health.repository.search.WeightSearchRepository;
 import org.jhipster.health.web.rest.errors.ExceptionTranslator;
@@ -20,6 +23,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDate;
@@ -28,7 +32,11 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
@@ -64,9 +72,15 @@ public class WeightResourceIntTest {
     @Autowired
     private EntityManager em;
 
+    @Autowired
+    private UserRepository userRepository;
+
     private MockMvc restWeightMockMvc;
 
     private Weight weight;
+
+    @Autowired
+    private WebApplicationContext context;
 
     @Before
     public void setup() {
@@ -295,5 +309,54 @@ public class WeightResourceIntTest {
         assertThat(weight1).isNotEqualTo(weight2);
         weight1.setId(null);
         assertThat(weight1).isNotEqualTo(weight2);
+    }
+
+    private void createWeightByMonth(LocalDate firstDate, LocalDate firstDayOfLastMonth) {
+        User user = userRepository.findOneByLogin("user").get();
+
+        weight = new Weight(firstDate, 60, user);
+        weightRepository.saveAndFlush(weight);
+        weight = new Weight(firstDate, 62, user);
+        weightRepository.saveAndFlush(weight);
+        weight = new Weight(firstDate, 63, user);
+        weightRepository.saveAndFlush(weight);
+
+        // last month
+        weight = new Weight(firstDayOfLastMonth, 59, user);
+        weightRepository.saveAndFlush(weight);
+        weight = new Weight(firstDayOfLastMonth, 64, user);
+        weightRepository.saveAndFlush(weight);
+        weight = new Weight(firstDayOfLastMonth, 60, user);
+        weightRepository.saveAndFlush(weight);
+    }
+
+    @Test
+    @Transactional
+    public void getWeightForLast30Days() throws Exception {
+        LocalDate now = LocalDate.now();
+        LocalDate twentyNineDaysAgo = now.minusDays(29);
+        LocalDate firstDayOfLastMonth = now.withDayOfMonth(1).minusMonths(1);
+        createWeightByMonth(twentyNineDaysAgo, firstDayOfLastMonth);
+
+        // create security-aware mockMvc
+        restWeightMockMvc = MockMvcBuilders
+            .webAppContextSetup(context)
+            .apply(springSecurity())
+            .build();
+        // Get all the blood pressure readings
+        restWeightMockMvc.perform(get("/api/weights")
+            .with(user("user").roles("USER")))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$", hasSize(6)));
+
+        // Get the blood pressure readings for the last 30 days
+        restWeightMockMvc.perform(get("/api/weight-by-days/{days}", 30)
+            .with(user("user").roles("USER")))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.period").value("Last 30 Days"))
+            .andExpect(jsonPath("$.readings.[*].weight").value(hasItem(60)));
     }
 }

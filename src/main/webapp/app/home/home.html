@@ -10,20 +10,17 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-4 text-right">
+                <div class="col-md-9 text-left" >
                     <label>Points for the week of {{ vm.today | date:'yyyy-MM-dd' }}</label>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <a ui-sref="points.add" class="btn btn-primary btn-raised">Add Points</a>
-                </div>
-                <div class="col-md-2">
-                    <a ui-sref="preferences.setting" class="btn btn-primary btn-raised">Setting</a>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
                     <div ng-show="vm.pointsThisWeek.points">
-                        <div class="progress-bar progress-bar-striped" role="progressbar"
+                        <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar"
                              ng-class="{'progress-bar-success': vm.pointsThisWeek.points >= vm.preferences.weeklyGoal,
                                         'progress-bar-danger': vm.pointsThisWeek.points < 10,
                                         'progress-bar-warning': vm.pointsThisWeek.points > 10 && vm.pointsThisWeek.points < vm.preferences.weeklyGoal}"
@@ -32,7 +29,6 @@
                             <span ng-show="vm.pointsThisWeek.points">
                                 {{vm.pointsThisWeek.points}} / Goal: {{vm.preferences.weeklyGoal}}
                             </span>
-                            <span class="sr-only">{{vm.pointsPercentage}} points this week</span>
                         </div>
                     </div>
                 <div>
@@ -45,6 +41,42 @@
                 </div>
             </div>
             <br/>
+            <div class="row">
+                <div class="col-md-8 text-left">
+                    <label data-translate="home.weight">Weight</label>
+                </div>
+                <div class="col-md-4">
+                    <a ui-sref="weight.add" class="btn btn-primary btn-raised">Add Weight</a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-10">
+                    <span ng-if="vm.weightReadings.readings.length">
+                        <nvd3 options="vm.bpOptions" data="vm.bpData" class="with-3d-shadow with-transitions"></nvd3>
+                    </span>
+                    <span ng-if="!vm.bpReadings.readings.length">
+                      <div uib-alert type="info">No blood pressure readings found.</div>
+                  </span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-8 text-left">
+                    <label data-translate="home.bloodPressure">Blood pressure</label>
+                </div>
+                <div class="col-md-4">
+                    <a ui-sref="blood-pressure.add" class="btn btn-primary btn-raised">Add Blood Pressure</a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-10">
+                    <span ng-if="vm.bpReadings.readings.length">
+                        <nvd3 options="vm.bpOptions" data="vm.bpData" class="with-3d-shadow with-transitions"></nvd3>
+                    </span>
+                    <span ng-if="!vm.bpReadings.readings.length">
+                      <div uib-alert type="info">No blood pressure readings found.</div>
+                  </span>
+                </div>
+            </div>
             <div class="row">
                 <div class="col-md-12">
                     <div ng-switch="vm.isAuthenticated()">

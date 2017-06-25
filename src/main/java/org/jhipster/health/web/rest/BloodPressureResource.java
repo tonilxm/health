@@ -5,10 +5,12 @@ import org.jhipster.health.domain.BloodPressure;
 
 import org.jhipster.health.repository.BloodPressureRepository;
 import org.jhipster.health.repository.search.BloodPressureSearchRepository;
+import org.jhipster.health.security.SecurityUtils;
 import org.jhipster.health.web.rest.util.HeaderUtil;
 import org.jhipster.health.web.rest.util.PaginationUtil;
 import io.swagger.annotations.ApiParam;
 import io.github.jhipster.web.util.ResponseUtil;
+import org.jhipster.health.web.rest.vm.BloodPressureByPeriod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -22,9 +24,11 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
@@ -153,5 +157,18 @@ public class BloodPressureResource {
         HttpHeaders headers = PaginationUtil.generateSearchPaginationHttpHeaders(query, page, "/api/_search/blood-pressures");
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
+
+    @RequestMapping(value = "/bp-by-days/{days}")
+    @Timed
+    public ResponseEntity<BloodPressureByPeriod> getByDays(@PathVariable int days) {
+        LocalDate rightNow = LocalDate.now();
+        LocalDate daysAgo = rightNow.minusDays(days);
+
+        List<BloodPressure> readings = bloodPressureRepository
+            .findAllByTimestampBetweenAndUserLoginOrderByTimestampDesc(daysAgo, rightNow, SecurityUtils.getCurrentUserLogin());
+        BloodPressureByPeriod response = new BloodPressureByPeriod("Last " + days + " Days", readings);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
 
 }

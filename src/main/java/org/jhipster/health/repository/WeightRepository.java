@@ -4,6 +4,8 @@ import org.jhipster.health.domain.Weight;
 import org.springframework.stereotype.Repository;
 
 import org.springframework.data.jpa.repository.*;
+
+import java.time.LocalDate;
 import java.util.List;
 
 /**
@@ -15,5 +17,6 @@ public interface WeightRepository extends JpaRepository<Weight,Long> {
 
     @Query("select weight from Weight weight where weight.user.login = ?#{principal.username}")
     List<Weight> findByUserIsCurrentUser();
-    
+
+    List<Weight> findAllByTimestampBetweenAndUserLoginOrderByTimestampDesc(LocalDate daysAgo, LocalDate rightNow, String currentUserLogin);
 }

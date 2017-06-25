@@ -8,6 +8,7 @@ import javax.persistence.*;
 import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.util.Objects;
 
 /**
@@ -38,6 +39,17 @@ public class BloodPressure implements Serializable {
 
     @ManyToOne
     private User user;
+
+    public BloodPressure(LocalDate timestamp, int systolic, int diastolic, User user) {
+        this.systolic = systolic;
+        this.diastolic = diastolic;
+        this.user = user;
+        this.timestamp = timestamp;
+    }
+
+    public BloodPressure() {
+
+    }
 
     public Long getId() {
         return id;

@@ -36,6 +36,11 @@
                     copy.timestamp = DateUtils.convertLocalDateToServer(copy.timestamp);
                     return angular.toJson(copy);
                 }
+            },
+            'last30Days': {
+                method: 'GET',
+                isArray: false,
+                url: 'api/bp-by-days/30'
             }
         });
     }

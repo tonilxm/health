@@ -36,6 +36,12 @@
                     copy.timestamp = DateUtils.convertLocalDateToServer(copy.timestamp);
                     return angular.toJson(copy);
                 }
+            },
+            'last30Days' : {
+                method: 'GET',
+                url: 'api/weight-by-days/30',
+                isArray: false
+
             }
         });
     }
