@@ -5,9 +5,9 @@
         .module('21PointsApp')
         .controller('HomeController', HomeController);
 
-    HomeController.$inject = ['$scope', 'Principal', 'LoginService', '$state', 'Points', 'Preferences', 'BloodPressure', 'Chart'];
+    HomeController.$inject = ['$scope', 'Principal', 'LoginService', '$state', 'Points', 'Preferences', 'BloodPressure', 'Weight', 'Chart'];
 
-    function HomeController ($scope, Principal, LoginService, $state, Points, Preferences, BloodPressure, Chart) {
+    function HomeController ($scope, Principal, LoginService, $state, Points, Preferences, BloodPressure, Weight, Chart) {
         var vm = this;
 
         vm.account = null;
@@ -19,10 +19,12 @@
         $scope.$on('authenticationSuccess', function() {
             getAccount();
             getBpLast30Days();
+            getWeightLast30Days();
         });
 
         getAccount();
         getBpLast30Days();
+        getWeightLast30Days();
 
         function register () {
             $state.go('register');
@@ -84,6 +86,36 @@
 
                     // set y scale to be 10 more than max and min
                     vm.bpOptions.chart.yDomain = [Math.min.apply(Math, lowerValues) - 10, Math.max.apply(Math, upperValues) + 10]
+                }
+            });
+        }
+
+        function getWeightLast30Days() {
+            Weight.last30Days(function(weightReadings) {
+                vm.weightReadings = weightReadings;
+
+                if (weightReadings.readings.length) {
+                    vm.weightOptions = angular.copy(Chart.getWeightChartConfig());
+                    vm.weightOptions.title.text = weightReadings.period;
+                    vm.weightOptions.chart.yAxis.axisLabel = "Weight";
+
+                    var weights;
+                    weights = [];
+                    weightReadings.readings.forEach(function(item) {
+                        weights.push({
+                            x: new Date(item.timestamp),
+                            y: item.weight
+                        });
+                    });
+
+                    vm.weightData = [{
+                        values: weights,
+                        key: 'weight',
+                        color: '#673ab7'
+                        }];
+
+                    // set y scale to be 10 more than max and min
+                    vm.weightOptions.chart.yDomain = [0, 100]
                 }
             });
         }

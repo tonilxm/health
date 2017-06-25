@@ -10,10 +10,10 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-9 text-left" >
+                <div class="col-md-8 text-left" >
                     <label>Points for the week of {{ vm.today | date:'yyyy-MM-dd' }}</label>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <a ui-sref="points.add" class="btn btn-primary btn-raised">Add Points</a>
                 </div>
             </div>
@@ -41,24 +41,26 @@
                 </div>
             </div>
             <br/>
+
             <div class="row">
                 <div class="col-md-8 text-left">
                     <label data-translate="home.weight">Weight</label>
                 </div>
                 <div class="col-md-4">
-                    <a ui-sref="weight.add" class="btn btn-primary btn-raised">Add Weight</a>
+                    <a ui-sref="weights-add" class="btn btn-primary btn-raised">Add Weight</a>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-10">
                     <span ng-if="vm.weightReadings.readings.length">
-                        <nvd3 options="vm.bpOptions" data="vm.bpData" class="with-3d-shadow with-transitions"></nvd3>
+                        <nvd3 options="vm.weightOptions" data="vm.weightData" class="with-3d-shadow with-transitions"></nvd3>
                     </span>
-                    <span ng-if="!vm.bpReadings.readings.length">
-                      <div uib-alert type="info">No blood pressure readings found.</div>
+                    <span ng-if="!vm.weightReadings.readings.length">
+                      <div uib-alert type="info">No weight readings found.</div>
                   </span>
                 </div>
             </div>
+
             <div class="row">
                 <div class="col-md-8 text-left">
                     <label data-translate="home.bloodPressure">Blood pressure</label>
@@ -77,9 +79,11 @@
                   </span>
                 </div>
             </div>
+
             <div class="row">
                 <div class="col-md-12">
                     <div ng-switch="vm.isAuthenticated()">
+
                         <div class="alert alert-success" ng-switch-when="true" data-translate="home.logged.message" translate-values="{username: '{{vm.account.login}}'}">
                             You are logged in as user "{{vm.account.login}}".
                         </div>

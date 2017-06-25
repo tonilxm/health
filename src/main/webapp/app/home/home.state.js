@@ -27,6 +27,7 @@
                     $translatePartialLoader.addPart('home');
                     $translatePartialLoader.addPart('points');
                     $translatePartialLoader.addPart('bloodPressure');
+                    $translatePartialLoader.addPart('weight');
                     return $translate.refresh();
                 }]
             }
@@ -128,6 +129,34 @@
                     });
             }]
         })
-        ;
+        .state('weights-add', {
+            parent: 'home',
+            url: 'add/weight',
+            data: {
+                authorities: ['ROLE_USER']
+            },
+            onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
+                $uibModal.open({
+                    templateUrl: 'app/entities/weight/weight-dialog.html',
+                    controller: 'WeightDialogController',
+                    controllerAs: 'vm',
+                    backdrop: 'static',
+                    size: 'lg',
+                    resolve: {
+                        entity: function () {
+                            return {
+                                timestamp: null,
+                                weight: null,
+                                id: null
+                            };
+                        }
+                    }
+                }).result.then(function() {
+                        $state.go('home', null, { reload: true });
+                    }, function() {
+                        $state.go('home');
+                    });
+            }]
+        });
     }
 })();
